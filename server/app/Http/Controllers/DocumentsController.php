@@ -53,6 +53,7 @@ class DocumentsController extends Controller
         try {
             $user = $request->get('user');
             $subject = $request->query('subject');
+            $status = $request->query('status');
             $order = 'DESC';
             $page = 1;
             if ($request->query('page')) $page =  intval($request->query('page'));
@@ -63,6 +64,7 @@ class DocumentsController extends Controller
             $where = [];
             if ($user->role == "maker") $where = [...$where,   ['created_by', '=', $user->user_id]];
             if ($subject) $where = [...$where, ['document_subject', 'like', '%' . $subject . '%']];
+            if ($status) $where = [...$where, ['status', '=', $status]];
             $documents = Documents::with(['user', 'document_detail'])
                 ->where($where)
                 ->skip($offset)
@@ -117,7 +119,9 @@ class DocumentsController extends Controller
             if ($validated->fails()) return response()->json($validated->errors(), 400);
             $document->update([
                 'status' => $request->status,
-                'remark' => $request->remark
+                'remark' => $request->remark,
+                'updated_by' => $user->user_id
+
             ]);
             return response()->json(['message' => 'status success to updated'], 200);
         } catch (\Throwable $th) {

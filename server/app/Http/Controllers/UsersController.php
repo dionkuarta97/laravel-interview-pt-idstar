@@ -18,10 +18,9 @@ class UsersController extends Controller
         ]);
 
         if ($validated->fails()) return response()->json($validated->errors(), 400);
-        $users = Users::with('roles')->get();
+        $users = Users::with('roles');
 
-        $checkUser = $users->where('username', $request->username);
-
+        $checkUser = $users->where('username', $request->username)->get();
         if (count($checkUser) == 0) return response()->json(['message' => 'wrong username/password'], 401);
         if ($checkUser[0]['password'] != $request->password) return response()->json(['message' => 'wrong username/password'], 401);
 
@@ -39,7 +38,6 @@ class UsersController extends Controller
 
     public function getUsers(Request $request)
     {
-        $users = Users::all();
 
         $user = $request->get('user');
 
